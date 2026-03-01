@@ -82,11 +82,11 @@ app.get('/api/token', (req, res) => {
 app.post('/api/validate-token', (req, res) => {
     const { token } = req.body;
 
-    // If the token is still in our active set, it was generated recently
-    // and hasn't been claimed yet.
+    // If the token is still in our active set, it was generated recently.
+    // In "Classroom Mode", we DO NOT delete the token here because
+    // 50 students might be scanning the exact same QR code concurrently.
+    // The token will automatically expire after 60 seconds from memory anyway.
     if (activeTokens.has(token)) {
-        // We "claim" it so no one else can use this exact token to open the page
-        activeTokens.delete(token);
         return res.json({ success: true, message: 'Token valid. You can now fill the form.' });
     } else {
         return res.status(400).json({ success: false, message: 'This QR code has already been scanned or is expired. Please scan the screen again.' });
