@@ -251,23 +251,26 @@
         let qrCodeInstance = null;
         let expireTimestamp = 0;
         let lastToken = null;
-        let serverIp = window.location.hostname;
-        let serverPort = window.location.port ? ':' + window.location.port : '';
+        let baseUrl = window.location.origin;
 
         // To keep track of who we already showed a toast for
         const announcedUsers = new Set();
 
-        fetch('/api/config')
-            .then(res => res.json())
-            .then(data => {
-                if (data.ip && data.ip !== 'localhost') {
-                    serverIp = data.ip;
-                }
-            })
-            .catch(console.error);
+        // Only override the IP if we are testing locally on 'localhost'
+        // Otherwise, trust the actual domain we are currently visiting (like Render!)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            fetch('/api/config')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ip && data.ip !== 'localhost') {
+                        baseUrl = window.location.protocol + '//' + data.ip + (window.location.port ? ':' + window.location.port : '');
+                    }
+                })
+                .catch(console.error);
+        }
 
         function getScanUrlBase() {
-            return window.location.protocol + "//" + serverIp + serverPort + "/scan.html";
+            return baseUrl + "/scan.html";
         }
 
         async function fetchToken() {
