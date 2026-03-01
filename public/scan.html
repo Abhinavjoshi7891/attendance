@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check In</title>
+    <!-- Use Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            /* Academic Blue */
+            --primary-hover: #1d4ed8;
+            --bg-light: #f8fafc;
+            --surface-light: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .card {
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .icon-wrapper {
+            width: 70px;
+            height: 70px;
+            background: #eff6ff;
+            /* Light blue tint */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem auto;
+            border: 1px solid #bfdbfe;
+        }
+
+        .icon-wrapper svg {
+            width: 32px;
+            height: 32px;
+            color: var(--primary);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 8px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: var(--text-dark);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message.success {
+            display: block;
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .message.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Success screen styles */
+        #success-screen {
+            display: none;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem auto;
+            color: var(--primary);
+        }
+
+        #error-screen {
+            display: none;
+        }
+
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 2rem auto;
+            color: #f87171;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Loading Screen -->
+    <div class="card" id="loading-screen" style="display: block;">
+        <div class="icon-wrapper" style="animation: pulse 1.5s infinite;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <h1>Verifying...</h1>
+        <p>Checking QR code security token...</p>
+    </div>
+
+    <!-- Loading Screen -->
+    <div class="card" id="loading-screen" style="display: block;">
+        <div class="icon-wrapper" style="animation: pulse 1.5s infinite;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <h1>Verifying...</h1>
+        <p>Checking QR code security token...</p>
+    </div>
+
+    <!-- Main Registration Form -->
+    <div class="card" id="form-screen" style="display: none;">
+        <div class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+        </div>
+        <h1>Register Attendance</h1>
+        <p>You're almost there. Enter your full name to check in.</p>
+
+        <form id="attendance-form">
+            <div class="input-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" placeholder="E.g. Jane Doe" required autocomplete="name">
+            </div>
+
+            <button type="submit" id="submit-btn">
+                <span>Check In Now</span>
+            </button>
+
+            <div id="status-message" class="message"></div>
+        </form>
+    </div>
+
+    <!-- Success Screen -->
+    <div class="card" id="success-screen">
+        <svg class="success-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h1>Checked In!</h1>
+        <p>Your attendance has been successfully recorded. You may now close this page.</p>
+    </div>
+
+    <!-- Error Screen (e.g. invalid token) -->
+    <div class="card" id="error-screen">
+        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <h1>Oops!</h1>
+        <p id="error-message-text">This QR code has expired or is invalid. Please scan the current code on the screen
+            again.</p>
+        <button onclick="window.location.reload()" style="margin-top: 1rem; background: rgba(255,255,255,0.1);">Try
+            Again</button>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        const loadingScreen = document.getElementById('loading-screen');
+        const formScreen = document.getElementById('form-screen');
+        const errorScreen = document.getElementById('error-screen');
+        const successScreen = document.getElementById('success-screen');
+        const errorText = document.getElementById('error-message-text');
+
+        // 1. Immediately validate and "claim" the token on page load
+        async function validateToken() {
+            if (!token) {
+                loadingScreen.style.display = 'none';
+                errorScreen.style.display = 'block';
+                errorText.innerText = "No QR code token found. Please scan the code directly.";
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/validate-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+
+                const data = await res.json();
+
+                loadingScreen.style.display = 'none';
+
+                if (data.success) {
+                    // Token claimed successfully! Show the form. Let them take their time.
+                    formScreen.style.display = 'block';
+                } else {
+                    // Token was already claimed by someone else (screenshot!) or is expired
+                    errorScreen.style.display = 'block';
+                    errorText.innerText = data.message;
+                }
+            } catch (err) {
+                console.error(err);
+                loadingScreen.style.display = 'none';
+                errorScreen.style.display = 'block';
+                errorText.innerText = "Network error while verifying token. Are you on the same Wi-Fi?";
+            }
+        }
+
+        validateToken();
+
+        // Keep name in memory between refreshes/redirects
+        const savedName = localStorage.getItem('attendance_name');
+        if (savedName) {
+            document.getElementById('name').value = savedName;
+        }
+
+        const form = document.getElementById('attendance-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const statusMsg = document.getElementById('status-message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            if (!name) return;
+
+            // Save to local storage for convenience next time
+            localStorage.setItem('attendance_name', name);
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Submitting...';
+            statusMsg.className = 'message'; // reset
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, token })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    // Show success screen
+                    formScreen.style.display = 'none';
+                    successScreen.style.display = 'block';
+                } else {
+                    statusMsg.innerText = data.message || 'An error occurred';
+                    statusMsg.className = 'message error';
+                }
+            } catch (err) {
+                console.error(err);
+                statusMsg.innerText = 'Network error. Please try again.';
+                statusMsg.className = 'message error';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Check In Now</span>';
+            }
+        });
+    </script>
+</body>
+
+</html>

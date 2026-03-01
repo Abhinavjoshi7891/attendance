@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic QR Attendance - Host</title>
+    <!-- Use Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            /* Riselab styling matches */
+            --bg-light: #f8fafc;
+            --surface-light: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --accent: #1e3a8a;
+            /* Academic Deep Blue */
+            --accent-light: #eff6ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Top Header Navigation style */
+        .header {
+            width: 100%;
+            background: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 4px solid var(--accent);
+        }
+
+        .header-logos {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .header-logos img {
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .header-title {
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            max-width: 900px;
+            line-height: 1.4;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            padding: 0 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .glass-panel {
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 3rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .glass-panel h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+            letter-spacing: -0.01em;
+        }
+
+        .glass-panel p {
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .qr-wrapper {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 2px solid var(--border);
+            position: relative;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-light);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid #bfdbfe;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.4;
+            }
+        }
+
+        /* Success Toast Notification */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .toast {
+            background: #ffffff;
+            border: 1px solid #bfdbfe;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            color: var(--accent);
+            display: flex;
+        }
+
+        .toast-content {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+        }
+
+        .toast-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="header-logos">
+            <!-- IIT Delhi Logo -->
+            <img src="/logos/iitd-logo.png" alt="IIT Delhi Logo" style="height: 100px;">
+            <!-- University of Exeter Logo -->
+            <img src="/logos/University-of-Exeter-logo.webp" alt="University of Exeter Logo"
+                style="height: 75px; margin: 0 30px;">
+            <!-- Sports Authority of India Logo -->
+            <img src="/logos/sai-logo.jpg" alt="Sports Authority of India Logo" style="height: 100px;">
+        </div>
+        <div class="header-title">
+            Welcome to the Spring School in Sports Technology, Machine Learning and Data Analytics
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="glass-panel">
+            <h1>Register Attendance</h1>
+            <p>Scan the QR code with your mobile device.</p>
+
+            <div class="qr-wrapper" id="qrcode-container">
+                <!-- QR code generated here -->
+            </div>
+
+            <div class="status-pill">
+                <div class="status-dot"></div>
+                Accepting Responses
+            </div>
+            <!-- The timer div is completely removed -->
+        </div>
+    </div>
+
+    <!-- Container for dynamic popups -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        let qrCodeInstance = null;
+        let expireTimestamp = 0;
+        let lastToken = null;
+        let serverIp = window.location.hostname;
+        let serverPort = window.location.port ? ':' + window.location.port : '';
+
+        // To keep track of who we already showed a toast for
+        const announcedUsers = new Set();
+
+        fetch('/api/config')
+            .then(res => res.json())
+            .then(data => {
+                if (data.ip && data.ip !== 'localhost') {
+                    serverIp = data.ip;
+                }
+            })
+            .catch(console.error);
+
+        function getScanUrlBase() {
+            return window.location.protocol + "//" + serverIp + serverPort + "/scan.html";
+        }
+
+        async function fetchToken() {
+            try {
+                const res = await fetch('/api/token');
+                const data = await res.json();
+
+                if (data.token !== lastToken) {
+                    lastToken = data.token;
+                    expireTimestamp = data.expiresAt;
+                    generateQR(lastToken);
+                }
+            } catch (err) {
+                console.error("Error fetching token", err);
+            }
+        }
+
+        function generateQR(token) {
+            const container = document.getElementById('qrcode-container');
+            container.innerHTML = ""; // clear previous
+
+            const scanUrl = `${getScanUrlBase()}?token=${token}`;
+
+            qrCodeInstance = new QRCode(container, {
+                text: scanUrl,
+                width: 280,
+                height: 280,
+                colorDark: "#1e293b", // Dark Slate Blue
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+
+        function showToast(name) {
+            const container = document.getElementById('toast-container');
+
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="toast-content">
+                    <span class="toast-title">Attendance Recorded</span>
+                    <span class="toast-desc">${name} just checked in!</span>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            // Trigger animation
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            // Remove after 6 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 400); // Wait for transition
+            }, 6000);
+        }
+
+        async function fetchAttendance() {
+            try {
+                const res = await fetch('/api/attendance');
+                const result = await res.json();
+
+                if (result.success && result.data) {
+                    result.data.forEach(record => {
+                        // If we haven't seen this ID yet
+                        if (!announcedUsers.has(record.id)) {
+                            // Don't spam toasts on first load. Only show for newest if it's not the first batch.
+                            if (announcedUsers.size > 0) {
+                                showToast(record.name);
+                            }
+                            announcedUsers.add(record.id);
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error("Error fetching attendance", err);
+            }
+        }
+
+        // Fetch new token frequently
+        setInterval(() => {
+            if (expireTimestamp > 0 && Date.now() > expireTimestamp - 2000) {
+                fetchToken();
+            }
+        }, 1000);
+
+        // Fetch attendance periodically for toasts
+        setInterval(fetchAttendance, 1500);
+
+        // Initial fetch
+        fetchToken();
+        fetchAttendance();
+    </script>
+</body>
+
+</html>
