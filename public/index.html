@@ -275,7 +275,8 @@
 
         async function fetchToken() {
             try {
-                const res = await fetch('/api/token');
+                // Add a cache-busting timestamp so the browser never serves a stale token from memory!
+                const res = await fetch('/api/token?nocache=' + new Date().getTime());
                 const data = await res.json();
 
                 if (data.token !== lastToken) {
