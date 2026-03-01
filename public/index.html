@@ -359,12 +359,9 @@
             }
         }
 
-        // Fetch new token frequently
-        setInterval(() => {
-            if (expireTimestamp > 0 && Date.now() > expireTimestamp - 2000) {
-                fetchToken();
-            }
-        }, 1000);
+        // Fetch new token frequently blindly instead of relying on local laptop clock
+        // which might drift from the cloud server's exact time!
+        setInterval(fetchToken, 2000);
 
         // Fetch attendance periodically for toasts
         setInterval(fetchAttendance, 1500);

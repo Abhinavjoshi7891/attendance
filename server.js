@@ -56,10 +56,12 @@ function generateToken() {
     tokenExpiresAt = Date.now() + TOKEN_LIFESPAN_MS;
     activeTokens.add(currentToken);
 
-    // Cleanup old tokens from memory after 1 minute to prevent memory leaks
+    // Cleanup old tokens from memory after 90 seconds to prevent memory leaks.
+    // This gives them 90 full seconds from the exact moment the QR code appeared
+    // on the projector to scan it and let the page load successfully!
     setTimeout(() => {
         activeTokens.delete(currentToken);
-    }, 60000);
+    }, 90000);
 
     return { token: currentToken, expiresAt: tokenExpiresAt };
 }
