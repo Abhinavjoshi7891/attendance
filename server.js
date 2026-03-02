@@ -158,11 +158,11 @@ app.get('/api/export', (req, res) => {
             return res.status(500).send('Database error');
         }
 
-        let csv = 'ID,Name,Timestamp\\n';
+        let csv = 'ID,Name,Timestamp\n';
         rows.forEach(row => {
             // Escape quotes in names just in case
             const safeName = row.name.replace(/"/g, '""');
-            csv += `${row.id},"${safeName}","${row.local_time}"\\n`;
+            csv += `${row.id},"${safeName}","${row.local_time}"\n`;
         });
 
         res.header('Content-Type', 'text/csv');
