@@ -113,24 +113,13 @@ app.post('/api/register', (req, res) => {
     // 2 minutes to type their name. We already checked the token when they
     // first loaded the page via /api/validate-token.
 
-    // Check if user already registered recently (Optional: prevent double tapping)
-    // For simplicity, we just allow it, or we can look up if name already exists today.
-    db.get(`SELECT * FROM attendance WHERE name = ? AND date(timestamp) = date('now')`, [name], (err, row) => {
+    // Removed name-based duplicate check — two students can legitimately share the same name!
+    // The form button is already disabled on submit to prevent accidental double-taps.
+    db.run(`INSERT INTO attendance (name, token_used) VALUES (?, ?)`, [name, token], function (err) {
         if (err) {
-            return res.status(500).json({ success: false, message: 'Database error' });
+            return res.status(500).json({ success: false, message: 'Failed to record attendance' });
         }
-
-        if (row) {
-            return res.json({ success: true, message: 'Attendance already recorded for today!' });
-        }
-
-        // Insert new record
-        db.run(`INSERT INTO attendance (name, token_used) VALUES (?, ?)`, [name, token], function (err) {
-            if (err) {
-                return res.status(500).json({ success: false, message: 'Failed to record attendance' });
-            }
-            res.json({ success: true, message: 'Attendance successfully recorded!' });
-        });
+        res.json({ success: true, message: 'Attendance successfully recorded!' });
     });
 });
 
